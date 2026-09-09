@@ -1475,8 +1475,6 @@ void CMSEXPORT _cmsSetProfileUserData(cmsHPROFILE hProfile, void* Data, _cmsFree
     {
         if (Icc->FreeUsrData != NULL)
             Icc->FreeUsrData(Icc->ContextID, Icc->UsrData);
-        else
-            _cmsFree(Icc->ContextID, Icc->UsrData);
     }
 
     Icc->UsrData     = Data;
