@@ -1907,9 +1907,24 @@ cmsInt32Number CheckProfileUserData(void)
         goto Error;
     }
 
+    cmsCloseProfile(p2);
+    p2 = NULL;
+
+    if (ProfileUserDataFreeCount != 3) {
+        Fail("Custom profile user data was not freed on close");
+        return 0;
+    }
+
+    p2 = cmsCreateProfilePlaceholder(NULL);
+    if (p2 == NULL) {
+        Fail("Cannot create profile placeholder");
+        goto Error;
+    }
+
+    Icc2 = (_cmsICCPROFILE*)p2;
+
     /*
-     * Exercise the default _cmsFree path. Data4 must be allocated with
-     * LittleCMS's allocator because FreeData is NULL.
+     * With no free callback, ownership remains with the caller.
      */
     Data4 = (cmsUInt32Number*)_cmsMalloc(NULL, sizeof(cmsUInt32Number));
     if (Data4 == NULL) goto Error;
@@ -1917,20 +1932,13 @@ cmsInt32Number CheckProfileUserData(void)
     *Data4 = 4;
 
     _cmsSetProfileUserData(Icc2, Data4, NULL);
-    _cmsFree(NULL, Data4);
-    Data4 = NULL;
 
     cmsCloseProfile(p2);
     p2 = NULL;
 
-    if (ProfileUserDataFreeCount != 3) {
-        Fail("Custom profile user data was not freed");
-        return 0;
-    }
+    _cmsFree(NULL, Data4);
+    Data4 = NULL;
 
-    /*
-     * The default-free case is checked by the testbed's leak detector.
-     */
     return 1;
 
 Error:

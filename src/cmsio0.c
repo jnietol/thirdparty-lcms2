@@ -1804,6 +1804,9 @@ cmsBool  CMSEXPORT cmsCloseProfile(cmsHPROFILE hProfile)
         rc &= cmsCloseIOhandler(Icc->IOhandler);
     }
 
+    if (Icc->UsrData != NULL && Icc->FreeUsrData != NULL)
+        Icc->FreeUsrData(Icc->ContextID, Icc->UsrData);
+
     _cmsDestroyMutex(Icc->ContextID, Icc->UsrMutex);
 
     _cmsFree(Icc ->ContextID, Icc);   // Free placeholder memory
